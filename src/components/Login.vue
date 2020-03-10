@@ -31,8 +31,8 @@
             return{
                 //登录表单的数据绑定对象
                 loginForm:{
-                    username: '',
-                    password: ''
+                    username: 'admin',
+                    password: '123456'
                 },
                 //表单的验证规则
                 loginFormRules:{
@@ -52,16 +52,24 @@
         methods:{
             //点击重置按钮 重置登录表单
             resetloginForm:function () {
-                console.log(this.$refs);
+                //console.log(this.$refs);
                 // resetFields为Form表单的methods
                 this.$refs.loginFormRef.resetFields();
             },
             login:function () {
                 this.$refs.loginFormRef.validate(async valid => {
-                    console.log(valid);
+                    // console.log(valid);
                     if (!valid) return;
-                    const result = await this.$http.post('login', this.loginForm);
-                    console.log(result);
+                    const {data: res} = await this.$http.post('login', this.loginForm);
+                    console.log(res);
+                    if (res.meta.status !== 200) return this.$message.error("登录失败！");
+                    this.$message.success("登陆成功！");
+                    /*1、将登陆成功的token存储在sessionStorage里面
+                        1.1、项目中出了登录之外的API接口，必须在登陆之后才可以访问
+                        1.2、token只能在当前网站打开期间生效，所以将token存储在sessionStorage中*/
+                    window.sessionStorage.setItem("token",res.data.token);
+                    //通过编程式导航跳转至后台主页，路由地址是/home
+                    this.$router.push("/home");
                 });
             }
         }
